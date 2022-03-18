@@ -8,6 +8,7 @@ from pathlib import Path
 
 from api.v1.user.route import api_router as user_route
 from api.v1.media_user.route import api_router as media_user_route
+from api.v1.security.route import api_router as security_route
 from db.database import create_db_and_tables
 
 
@@ -22,6 +23,7 @@ app.logger = logger
 
 app.include_router(user_route, prefix='/api/v1/users')
 app.include_router(media_user_route, prefix='/api/v1/media_user')
+app.include_router(security_route, prefix='/api/v1/security')
 
 
 # Enable CORS
