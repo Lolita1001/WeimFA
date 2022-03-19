@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, Query
 
 from models.models import UserResponse, UserCreate, UserUpdate
 from db.database import get_session
@@ -24,8 +24,8 @@ def get_user_by_email(email: str, session=Depends(get_session)):
 
 
 @api_router.get("/", response_model=List[UserResponse])
-def get_users(session=Depends(get_session)):  # TODO add limit and offset
-    return db.get_user_all(session)
+def get_users(session=Depends(get_session), limit: int = 100, offset: int = 0):
+    return db.get_user_all(session, limit, offset)
 
 
 @api_router.put("/", response_model=UserResponse)

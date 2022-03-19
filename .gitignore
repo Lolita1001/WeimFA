@@ -4,3 +4,4 @@ sql_app.db
 .idea/
 .venv
 __pycache__/
+static/

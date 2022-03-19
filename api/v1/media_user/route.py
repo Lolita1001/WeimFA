@@ -15,11 +15,6 @@ def get_media_user(user_id: int, session=Depends(get_session)):
     return db.get_medias_user_by_user_id(session, user_id)
 
 
-# @api_router.post("/", response_model=MediaUserResponse)
-# def add_media_user(media_user_create: MediaUserCreate, session=Depends(get_session)):
-#     return db.add_media_user(session, media_user_create)
-
-
 @api_router.delete("/{media_id}", status_code=status.HTTP_202_ACCEPTED)
 def delete_media_user(media_id: int, session=Depends(get_session)):
     return db.delete_media_user(session, media_id)
@@ -32,9 +27,6 @@ def create_file(user_id: int, in_file: UploadFile = File(...), session=Depends(g
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect user_id")
     file_path = save_file(in_file, "static/media_user/")
-    if not file_path:
-        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                            detail="Failed to save file")
     media_user_create = MediaUserCreate(user_id=user_id, media_path=file_path)
     db_media_user = db.add_media_user(session, media_user_create)
     return db_media_user
