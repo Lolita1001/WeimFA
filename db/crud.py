@@ -59,6 +59,16 @@ def update_user(session: Session, user_update: UserUpdate):
     return db_user
 
 
+def delete_user_by_id(session: Session, user_id: int):
+    db_user = get_user_by_id(session, user_id)
+    if not db_user:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Incorrect user_id")
+    session.delete(db_user)
+    session.commit()
+    return JSONResponse({'ok': True})
+
+
 def get_media_user_by_media_id(session: Session, media_id: int):
     return session.exec(select(MediaUser).where(MediaUser.id == media_id)).first()
 

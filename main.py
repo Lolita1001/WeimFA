@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 import uvicorn
 from custom_logging import CustomizeLogger
 from pathlib import Path
@@ -21,6 +22,7 @@ config_path = Path(__file__).with_name("logging_config.json")
 logger = CustomizeLogger.make_logger(config_path)
 app.logger = logger
 
+app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(user_route, prefix='/api/v1/users')
 app.include_router(media_user_route, prefix='/api/v1/media_user')
 app.include_router(security_route, prefix='/api/v1/security')

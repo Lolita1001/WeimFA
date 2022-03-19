@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from models.models import UserResponse, UserCreate, UserUpdate
 from db.database import get_session
@@ -31,3 +31,8 @@ def get_users(session=Depends(get_session)):  # TODO add limit and offset
 @api_router.put("/", response_model=UserResponse)
 def update_user(user_update: UserUpdate, session=Depends(get_session)):
     return db.update_user(session, user_update)
+
+
+@api_router.delete("/{user_id}", status_code=status.HTTP_202_ACCEPTED)
+def delete_user_by_id(user_id: int, session=Depends(get_session)):
+    return db.delete_user_by_id(session, user_id)

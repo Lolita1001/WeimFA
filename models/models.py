@@ -30,7 +30,8 @@ class User(BaseUser, table=True):
     is_active: bool
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     updated_at: str | None = Field(nullable=True)
-    media: Optional[List["MediaUser"]] = Relationship(back_populates="user")
+    media: Optional[List["MediaUser"]] = Relationship(sa_relationship_kwargs={"cascade": "delete"},
+                                                      back_populates="user")
 
 
 class UserResponse(BaseUser):
@@ -60,7 +61,7 @@ class MediaUser(MediaUserBase, table=True):
     id: int = Field(primary_key=True)
     user_id: Optional[int] = Field(foreign_key='users.id')
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
-    user: Optional[User] = Relationship(back_populates="media")
+    user: Optional[User] = Relationship(back_populates="media")  # TODO почему не могу заменить на UserResponse?
 
 
 class MediaUserCreate(MediaUserBase):
@@ -70,7 +71,7 @@ class MediaUserCreate(MediaUserBase):
 class MediaUserResponse(MediaUserBase):
     id: int
     created_at: str
-    user: Optional[User]
+    user: Optional[User]  # TODO почему не могу заменить на UserResponse?
 
 
 User.update_forward_refs()
