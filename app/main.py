@@ -7,9 +7,9 @@ from custom_logging import CustomizeLogger
 from pathlib import Path
 # import logging
 
-from api.v1.user.route import api_router as user_route
-from api.v1.media_user.route import api_router as media_user_route
-from api.v1.security.route import api_router as security_route
+from api.v1.user import api_router as user_route
+from api.v1.media_user import api_router as media_user_route
+from api.v1.security import api_router as security_route
 from db.database import create_db_and_tables
 
 
@@ -18,14 +18,14 @@ from db.database import create_db_and_tables
 
 app = FastAPI()
 
-config_path = Path(__file__).with_name("logging_config.json")
-logger = CustomizeLogger.make_logger(config_path)
-app.logger = logger
+# config_path = Path(__file__).with_name("logging_config.json")
+# logger = CustomizeLogger.make_logger(config_path)
+# app.logger = logger
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
-app.include_router(user_route, prefix='/api/v1/users')
-app.include_router(media_user_route, prefix='/api/v1/media_user')
-app.include_router(security_route, prefix='/api/v1/security')
+app.include_router(user_route, prefix='/api/v1/users', tags=['user'])
+app.include_router(media_user_route, prefix='/api/v1/media_user', tags=['media_user'])
+app.include_router(security_route, prefix='/api/v1/security', tags=['security'])
 
 
 # Enable CORS

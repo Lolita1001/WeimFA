@@ -1,5 +1,5 @@
 from typing import List
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status
 
 from models.models import UserResponse, UserCreate, UserUpdate
 from db.database import get_session

@@ -1,7 +1,7 @@
 *.idea
-**/var/logs/log.log
-sql_app.db
+app/var/logs/
+app/sql_app.db
 .idea/
 .venv
 __pycache__/
-static/
+app/static/
