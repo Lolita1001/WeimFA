@@ -13,6 +13,10 @@ def get_user_by_id(session: Session, user_id: int):
     return session.exec(select(User).where(User.id == user_id)).first()
 
 
+def get_user_by_login(session: Session, login: str):
+    return session.exec(select(User).where(User.login == login)).first()
+
+
 def get_user_all(session: Session, limit: int = 100, offset: int = 0):
     return session.exec(select(User).limit(limit).offset(offset)).all()
 
@@ -22,10 +26,15 @@ def get_user_by_email(session: Session, email: str):
 
 
 def add_user(session: Session, user_create: UserCreate):
-    db_user = get_user_by_email(session, user_create.email)
-    if db_user:
+    if not (user_create.login and user_create.email and user_create.full_name and user_create.password):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Required fields: login, email, full name, password")
+    if get_user_by_email(session, user_create.email):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Email must be unique")
+    if get_user_by_login(session, user_create.login):
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail="Login must be unique")
     db_user = User(**user_create.dict())
     db_user.hash_pass = get_password_hash(user_create.password)
     db_user.privileges = Privileges.user

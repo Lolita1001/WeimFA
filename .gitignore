@@ -1,8 +1,9 @@
 *.idea
-app/var/logs/
-app/sql_app.db
+/app/sql_app.db
+/app/test_sql_app.db
 .idea/
 .venv
 __pycache__/
-app/static/
+/app/static/
 */.pytest_cache
+/app/var/
