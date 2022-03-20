@@ -16,14 +16,14 @@ def test_get_user_by_id_or_email(user_id):
     assert response.json() is None
 
 
-def test_get_users():
+def test_get_users_1():
     response = client.get(f"/api/v1/users/")
     assert response.status_code == 200
     assert response.json() == []
 
 
 @pytest.mark.parametrize("user_id", [-1, 0, 1])
-def test_get_media_user(user_id):
+def test_get_media_user_1(user_id):
     response = client.get(f"/api/v1/media_user/{user_id}")
     assert response.status_code == 200
     assert response.json() == []
@@ -32,7 +32,7 @@ def test_get_media_user(user_id):
 @pytest.mark.parametrize("login, email, full_name, password",
                          [("user1", "user1@mail.ru", "User1 U", "password1"),
                           ("user2", "user2@mail.ru", "User2 U", "password2")])
-def test_add_user1(login, email, full_name, password):
+def test_add_user_ok(login, email, full_name, password):
     response = client.post(f"/api/v1/users/",
                            json={
                                "login": login,
@@ -48,12 +48,12 @@ def test_add_user1(login, email, full_name, password):
 @pytest.mark.parametrize("login, email, full_name, password",
                          [("user1", "user3@mail.ru", "User3 U", "password3"),
                           ("user4", "user1@mail.ru", "User4 U", "password4"),
-                          # ("user5", "user5@mail", "User5 U", "password5"),  # TODO добавить валидацию почты
+                          ("user5", "user5@mail", "User5 U", "password5"),
                           ("", "user6@mail.ru", "User6 U", "password6"),
                           ("user7", "", "User7 U", "password7"),
                           ("user8", "user8@mail.ru", "", "password8"),
                           ("user9", "user9@mail.ru", "User9 U", "")])
-def test_add_user2(login, email, full_name, password):
+def test_add_user_bad(login, email, full_name, password):
     response = client.post(f"/api/v1/users/",
                            json={
                                "login": login,
@@ -62,5 +62,95 @@ def test_add_user2(login, email, full_name, password):
                                "password": password
                            }
                            )
-    assert response.status_code in [404, 409]
+    assert response.status_code in [404, 409, 422]
     # assert response.json() == []
+
+
+@pytest.mark.parametrize("login, email, full_name, password, old_password",
+                         [("user1_new", "user1@mail.ru", "User1 U", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1"),
+                          ("user1 new", "user1@mail.ru", "User1 U new", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1 U", "password1_new", "password1"),
+                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1_new")])
+def test_update_user_ok(login, email, full_name, password, old_password):
+    response = client.put(f"/api/v1/users/",
+                          json={
+                              "login": login,
+                              "email": email,
+                              "full_name": full_name,
+                              "password": password,
+                              "old_password": old_password
+                          }
+                          )
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("login, email, full_name, password, old_password",
+                         [("user1_new", "userX@mail.ru", "User1 U", "password1", "password1"),
+                          ("user1_new", "user1@mail.ru", "User1 U", "password1", "password1_X")])
+def test_update_user_bad(login, email, full_name, password, old_password):
+    response = client.put(f"/api/v1/users/",
+                          json={
+                              "login": login,
+                              "email": email,
+                              "full_name": full_name,
+                              "password": password,
+                              "old_password": old_password
+                          }
+                          )
+    assert response.status_code == 401
+
+
+@pytest.mark.parametrize("user_id, img_path",
+                         [(1, "tests/test_static/img_1.png"),
+                          (1, "tests/test_static/img_1.png"),
+                          (1, "tests/test_static/img_2.png"),
+                          (2, "tests/test_static/img_1.png"),
+                          (2, "tests/test_static/img_1.png"),
+                          (2, "tests/test_static/img_2.png")])
+def test_create_file_ok(user_id, img_path):
+    files = {'in_file': open(img_path, 'rb')}
+    response = client.post(f"/api/v1/media_user/{user_id}", files=files)
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("user_id, img_path",
+                         [(3, "tests/test_static/img_1.png"),
+                          (1, "tests/test_static/img_3_large.jpg"),
+                          (1, "tests/test_static/img_4.ico")])
+def test_create_file_bad(user_id, img_path):
+    files = {'in_file': open(img_path, 'rb')}
+    response = client.post(f"/api/v1/media_user/{user_id}", files=files)
+    assert response.status_code in [401, 409, 411]
+
+
+@pytest.mark.parametrize("media_id", [2, 4, 6])
+def test_delete_media_user_ok(media_id):
+    response = client.delete(f"/api/v1/media_user/{media_id}")
+    assert response.status_code == 200
+
+
+@pytest.mark.parametrize("media_id", [10, 11])
+def test_delete_media_user_bag(media_id):
+    response = client.delete(f"/api/v1/media_user/{media_id}")
+    assert response.status_code == 401
+
+
+@pytest.mark.parametrize("user_id", [1, 2])
+def test_delete_user_by_id_ok(user_id):
+    response = client.delete(f"/api/v1/users/{user_id}")
+    assert response.status_code == 200
+
+
+def test_get_users_2():
+    response = client.get(f"/api/v1/users/")
+    assert response.status_code == 200
+    assert response.json() == []
+
+
+@pytest.mark.parametrize("user_id", [1, 2])
+def test_get_media_user_2(user_id):
+    response = client.get(f"/api/v1/media_user/{user_id}")
+    assert response.status_code == 200
+    assert response.json() == []

@@ -2,6 +2,7 @@ from typing import Optional, List
 import enum
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, VARCHAR
+from pydantic import EmailStr
 from uuid import UUID, uuid4  # TODO уточнить в каких случаях используют uuid
 from datetime import datetime
 
@@ -13,23 +14,23 @@ class Privileges(str, enum.Enum):
 
 
 class BaseUser(SQLModel):
-    login: str = Field(sa_column=Column("login", VARCHAR, unique=True, nullable=True))
-    email: str = Field(sa_column=Column("email", VARCHAR, unique=True, nullable=True))
+    login: str = Field(sa_column=Column("login", VARCHAR, unique=True))
+    email: EmailStr = Field(sa_column=Column("email", VARCHAR, unique=True))
     full_name: str
 
 
 class UserCreate(BaseUser):
-    password: str = Field(nullable=False)
+    password: str
 
 
 class User(BaseUser, table=True):
     __tablename__ = "users"
     id: int = Field(primary_key=True)
-    hash_pass: str = Field(nullable=False)
-    privileges: Privileges = Field(nullable=False)
+    hash_pass: str = Field(exclude=True)
+    privileges: Privileges
     is_active: bool
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
-    updated_at: str | None = Field(nullable=True)
+    updated_at: str | None
     media: Optional[List["MediaUser"]] = Relationship(sa_relationship_kwargs={"cascade": "delete"},
                                                       back_populates="user")
 

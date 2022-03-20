@@ -16,6 +16,7 @@ def save_file(in_file: UploadFile, path: str):
     file_path = path + filename + in_ext
     in_file.file.seek(0, os.SEEK_END)
     file_length = in_file.file.tell()
+    in_file.file.seek(0, os.SEEK_SET)
     if file_length > 5*1024*1024: #  5MB
         raise HTTPException(status_code=status.HTTP_411_LENGTH_REQUIRED,
                             detail=f"Media is too large ({file_length/1024/1024}MB), 5MB max.")

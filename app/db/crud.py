@@ -1,3 +1,5 @@
+import os
+
 from sqlmodel import Session, select
 from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
@@ -73,12 +75,13 @@ def delete_user_by_id(session: Session, user_id: int):
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect user_id")
+    # db_user.media  # TODO доделать удаление файлов медиа каскадно
     session.delete(db_user)
     session.commit()
     return JSONResponse({'ok': True})
 
 
-def get_media_user_by_media_id(session: Session, media_id: int):
+def get_media_user_by_media_id(session: Session, media_id: int) -> MediaUser:
     return session.exec(select(MediaUser).where(MediaUser.id == media_id)).first()
 
 
@@ -103,6 +106,8 @@ def delete_media_user(session: Session, media_id: int):
     if not db_media_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect media_id")
+    if os.path.exists(db_media_user.media_path):
+        os.remove(db_media_user.media_path)
     session.delete(db_media_user)
     session.commit()
     return JSONResponse({'ok': True})
