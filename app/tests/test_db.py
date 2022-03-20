@@ -5,16 +5,14 @@ from sqlmodel.sql.expression import Select, SelectOfScalar
 SelectOfScalar.inherit_cache = True  # type: ignore
 Select.inherit_cache = True  # type: ignore
 
-SQL_ALCHEMY_DATABASE_URL = "sqlite:///sql_app.db"
+SQL_ALCHEMY_DATABASE_URL = "sqlite:///test_sql_app.db"
 
 engine = create_engine(
-    SQL_ALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}, echo="debug")
+    SQL_ALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+
+SQLModel.metadata.create_all(engine)
 
 
-def create_db_and_tables():
-    SQLModel.metadata.create_all(engine)
-
-
-def get_session():
+def override_get_session():
     with Session(engine) as session:
         yield session

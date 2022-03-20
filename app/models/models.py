@@ -2,7 +2,7 @@ from typing import Optional, List
 import enum
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, VARCHAR
-from uuid import UUID, uuid4  # TODO усточнить в каких случаях используют uuid
+from uuid import UUID, uuid4  # TODO уточнить в каких случаях используют uuid
 from datetime import datetime
 
 

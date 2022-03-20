@@ -5,3 +5,4 @@ app/sql_app.db
 .venv
 __pycache__/
 app/static/
+*/.pytest_cache

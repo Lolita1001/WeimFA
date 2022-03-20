@@ -20,7 +20,7 @@ def delete_media_user(media_id: int, session=Depends(get_session)):
     return db.delete_media_user(session, media_id)
 
 
-@api_router.post("/files/{user_id}", response_model=MediaUserResponse)  # TODO возврат pass_hash в пользователях
+@api_router.post("/{user_id}", response_model=MediaUserResponse)  # TODO возврат pass_hash в пользователях
 def create_file(user_id: int, in_file: UploadFile = File(...), session=Depends(get_session)):
     user_db = db.get_user_by_id(session, user_id)
     if not user_db:

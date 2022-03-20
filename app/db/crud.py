@@ -3,7 +3,7 @@ from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import status
 
-from models.models import User, UserCreate, Privileges, UserUpdate,MediaUser, MediaUserCreate
+from models.models import User, UserCreate, Privileges, UserUpdate, MediaUser, MediaUserCreate
 from .secret import get_password_hash, verify_password
 
 from datetime import datetime

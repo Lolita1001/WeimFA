@@ -3,8 +3,8 @@ from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 import uvicorn
-from custom_logging import CustomizeLogger
-from pathlib import Path
+# from custom_logging import CustomizeLogger
+# from pathlib import Path
 # import logging
 
 from api.v1.user import api_router as user_route

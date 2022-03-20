@@ -13,14 +13,11 @@ def add_user(user_create: UserCreate, session=Depends(get_session)):
     return db.add_user(session, user_create)
 
 
-@api_router.get("/{user_id}", response_model=UserResponse)
-def get_user_by_id(user_id: int, session=Depends(get_session)):
-    return db.get_user_by_id(session, user_id)
-
-
-@api_router.get("/email/{email}", response_model=UserResponse)
-def get_user_by_email(email: str, session=Depends(get_session)):
-    return db.get_user_by_email(session, email)
+@api_router.get("/{user_id_or_email}", response_model=UserResponse)
+def get_user_by_id_or_email(user_id_or_email: int | str, session=Depends(get_session)):
+    match user_id_or_email:
+        case int(): return db.get_user_by_id(session, user_id_or_email)
+        case str(): return db.get_user_by_email(session, user_id_or_email)
 
 
 @api_router.get("/", response_model=List[UserResponse])
