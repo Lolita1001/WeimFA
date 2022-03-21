@@ -11,23 +11,23 @@ from .secret import get_password_hash, verify_password
 from datetime import datetime
 
 
-def get_user_by_id(session: Session, user_id: int):
+def get_user_by_id(session: Session, user_id: int) -> User:
     return session.exec(select(User).where(User.id == user_id)).first()
 
 
-def get_user_by_login(session: Session, login: str):
+def get_user_by_login(session: Session, login: str) -> User:
     return session.exec(select(User).where(User.login == login)).first()
 
 
-def get_user_all(session: Session, limit: int = 100, offset: int = 0):
+def get_user_all(session: Session, limit: int = 100, offset: int = 0) -> list[User]:
     return session.exec(select(User).limit(limit).offset(offset)).all()
 
 
-def get_user_by_email(session: Session, email: str):
+def get_user_by_email(session: Session, email: str) -> User:
     return session.exec(select(User).where(User.email == email)).first()
 
 
-def add_user(session: Session, user_create: UserCreate):
+def add_user(session: Session, user_create: UserCreate) -> User:
     if not (user_create.login and user_create.email and user_create.full_name and user_create.password):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Required fields: login, email, full name, password")
@@ -48,7 +48,7 @@ def add_user(session: Session, user_create: UserCreate):
     return db_user
 
 
-def update_user(session: Session, user_update: UserUpdate):
+def update_user(session: Session, user_update: UserUpdate) -> User:
     db_user = get_user_by_email(session, user_update.email)
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -75,7 +75,8 @@ def delete_user_by_id(session: Session, user_id: int):
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect user_id")
-    # db_user.media  # TODO доделать удаление файлов медиа каскадно
+    path_files = [media.media_path for media in db_user.media]
+    remove_files(path_files)
     session.delete(db_user)
     session.commit()
     return JSONResponse({'ok': True})
@@ -85,11 +86,11 @@ def get_media_user_by_media_id(session: Session, media_id: int) -> MediaUser:
     return session.exec(select(MediaUser).where(MediaUser.id == media_id)).first()
 
 
-def get_medias_user_by_user_id(session: Session, user_id: int, limit: int = 100, offset: int = 0):
+def get_medias_user_by_user_id(session: Session, user_id: int, limit: int = 100, offset: int = 0) -> list[MediaUser]:
     return session.exec(select(MediaUser).where(MediaUser.user_id == user_id).limit(limit).offset(offset)).all()
 
 
-def add_media_user(session: Session, media_user_create: MediaUserCreate):
+def add_media_user(session: Session, media_user_create: MediaUserCreate) -> MediaUser:
     db_user = get_user_by_id(session, media_user_create.user_id)
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
@@ -106,8 +107,14 @@ def delete_media_user(session: Session, media_id: int):
     if not db_media_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect media_id")
-    if os.path.exists(db_media_user.media_path):
-        os.remove(db_media_user.media_path)
+    remove_files(db_media_user.media_path)
     session.delete(db_media_user)
     session.commit()
     return JSONResponse({'ok': True})
+
+
+def remove_files(path_files: str | list[str]):
+    path_files = [path_files] if isinstance(path_files, str) else path_files
+    for path_file in path_files:
+        if os.path.exists(path_file):
+            os.remove(path_file)

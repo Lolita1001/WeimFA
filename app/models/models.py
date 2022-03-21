@@ -48,7 +48,7 @@ class UserUpdate(UserCreate):
     old_password: str
 
 
-class UserUpdateAdmin(BaseUser):  # TODO How should the administrator change the privileges of other users
+class UserUpdateAdmin(BaseUser):
     privileges: Privileges
     is_active: bool
 
