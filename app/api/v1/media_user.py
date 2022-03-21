@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, status, File, UploadFile
-from fastapi.exceptions import HTTPException
 
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from models.models import MediaUserResponse, MediaUserCreate
 from db.database import get_session
 from db.utils.utils import save_file

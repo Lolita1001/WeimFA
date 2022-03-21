@@ -1,14 +1,13 @@
 import os
+from datetime import datetime
 
 from sqlmodel import Session, select
-from fastapi.exceptions import HTTPException
 from fastapi.responses import JSONResponse
 from fastapi import status
 
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from models.models import User, UserCreate, Privileges, UserUpdate, MediaUser, MediaUserCreate
 from .secret import get_password_hash, verify_password
-
-from datetime import datetime
 
 
 def get_user_by_id(session: Session, user_id: int) -> User:

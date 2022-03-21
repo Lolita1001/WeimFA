@@ -43,7 +43,6 @@ def test_add_user_ok(login, email, first_name, last_name, password):
                            }
                            )
     assert response.status_code == 200
-    # assert response.json() == []
 
 
 @pytest.mark.parametrize("login, email, first_name, last_name, password",
@@ -65,7 +64,6 @@ def test_add_user_bad(login, email, first_name, last_name, password):
                            }
                            )
     assert response.status_code in [404, 409, 422]
-    # assert response.json() == []
 
 
 @pytest.mark.parametrize("login, email, first_name, last_name, password, old_password",
@@ -104,6 +102,7 @@ def test_update_user_bad(login, email, first_name, last_name, password, old_pass
                           }
                           )
     assert response.status_code == 401
+    assert response.headers.get('custom_exc', None) == "True"
 
 
 @pytest.mark.parametrize("user_id, img_path",
@@ -127,6 +126,7 @@ def test_create_file_bad(user_id, img_path):
     files = {'in_file': open(img_path, 'rb')}
     response = client.post(f"/api/v1/media_user/{user_id}", files=files)
     assert response.status_code in [401, 409, 411]
+    assert response.headers.get('custom_exc', None) == "True"
 
 
 @pytest.mark.parametrize("media_id", [2, 4, 6])
@@ -139,6 +139,7 @@ def test_delete_media_user_ok(media_id):
 def test_delete_media_user_bag(media_id):
     response = client.delete(f"/api/v1/media_user/{media_id}")
     assert response.status_code == 401
+    assert response.headers.get('custom_exc', None) == "True"
 
 
 @pytest.mark.parametrize("user_id", [1, 2])

@@ -1,7 +1,8 @@
 import os
 import shutil
 
-from fastapi import UploadFile, HTTPException, status
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
+from fastapi import UploadFile, status
 from uuid import uuid4
 
 AVAILABLE_MEDIA_EXTENSIONS = ['.jpg', '.png']

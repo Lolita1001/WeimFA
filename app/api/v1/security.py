@@ -2,9 +2,8 @@ import datetime
 
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, status
-from fastapi.exceptions import HTTPException
 
-
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from db.secret import verify_password, generate_token, decode_token
 from db.database import get_session
 import db.crud as db
