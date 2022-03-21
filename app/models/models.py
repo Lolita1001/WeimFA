@@ -14,17 +14,18 @@ class Privileges(str, enum.Enum):
 
 
 class BaseUser(SQLModel):
-    login: str = Field(sa_column=Column("login", VARCHAR, unique=True))
-    email: EmailStr = Field(sa_column=Column("email", VARCHAR, unique=True))
-    full_name: str
+    login: str = Field(sa_column=Column("login", VARCHAR, unique=True), schema_extra={'c_required': True})
+    email: EmailStr = Field(sa_column=Column("email", VARCHAR, unique=True), schema_extra={'c_required': True})
+    first_name: str = Field(schema_extra={'c_required': True})
+    last_name: str
 
 
 class UserCreate(BaseUser):
-    password: str
+    password: str = Field(schema_extra={'c_required': True})
 
 
 class User(BaseUser, table=True):
-    __tablename__ = "users"
+    __tablename__ = "user"
     id: int = Field(primary_key=True)
     hash_pass: str = Field(exclude=True)
     privileges: Privileges
@@ -45,28 +46,29 @@ class UserResponse(BaseUser):
 
 
 class UserUpdate(UserCreate):
-    old_password: str
+    old_password: str = Field(schema_extra={'c_required': True})
 
 
 class UserUpdateAdmin(BaseUser):
-    privileges: Privileges
-    is_active: bool
+    privileges: Privileges = Field(schema_extra={'c_required': True})
+    is_active: bool = Field(schema_extra={'c_required': True})
 
 
 class MediaUserBase(SQLModel):
     media_path: str
+    is_main: bool = False
 
 
-class MediaUser(MediaUserBase, table=True):
-    __tablename__ = "media_users"
+class MediaUser(MediaUserBase, table=True):  # TODO добавить обязательные поля и проверку на них
+    __tablename__ = "media_user"
     id: int = Field(primary_key=True)
-    user_id: Optional[int] = Field(foreign_key='users.id')
+    user_id: Optional[int] = Field(foreign_key='user.id')
     created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
     user: Optional[User] = Relationship(back_populates="media")  # TODO почему не могу заменить на UserResponse?
 
 
 class MediaUserCreate(MediaUserBase):
-    user_id: Optional[int] = Field(foreign_key='users.id')
+    user_id: Optional[int] = Field(foreign_key='user.id')
 
 
 class MediaUserResponse(MediaUserBase):

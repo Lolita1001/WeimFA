@@ -28,9 +28,11 @@ def get_user_by_email(session: Session, email: str) -> User:
 
 
 def add_user(session: Session, user_create: UserCreate) -> User:
-    if not (user_create.login and user_create.email and user_create.full_name and user_create.password):
+    required_field_names, empty_required_fields = check_required_field(user_create)
+    if empty_required_fields:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
-                            detail="Required fields: login, email, full name, password")
+                            detail=f"Required fields is empty ({', '.join(empty_required_fields)}). "
+                                   f"Required fields: {', '.join(required_field_names)}")
     if get_user_by_email(session, user_create.email):
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail="Email must be unique")
@@ -95,7 +97,9 @@ def add_media_user(session: Session, media_user_create: MediaUserCreate) -> Medi
     if not db_user:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect user_id")
+    is_main = check_have_main_media(session, MediaUser)
     db_media_user = MediaUser(**media_user_create.dict())
+    db_media_user.is_main = is_main
     session.add(db_media_user)
     session.commit()
     session.refresh(db_media_user)
@@ -118,3 +122,17 @@ def remove_files(path_files: str | list[str]):
     for path_file in path_files:
         if os.path.exists(path_file):
             os.remove(path_file)
+
+
+def check_required_field(model):
+    required_field_names = [field_name for field_name, field_value in model.__fields__.items() if
+                            field_value.field_info.extra.get("c_required", False)]
+    empty_required_fields = [required_field_name for required_field_name in
+                             required_field_names
+                             if not model.__getattribute__(required_field_name)]
+    return required_field_names, empty_required_fields
+
+
+def check_have_main_media(session: Session, model):
+    db_media = session.exec(select(model).where(model.is_main)).first()
+    return False if db_media else True

@@ -29,15 +29,16 @@ def test_get_media_user_1(user_id):
     assert response.json() == []
 
 
-@pytest.mark.parametrize("login, email, full_name, password",
-                         [("user1", "user1@mail.ru", "User1 U", "password1"),
-                          ("user2", "user2@mail.ru", "User2 U", "password2")])
-def test_add_user_ok(login, email, full_name, password):
+@pytest.mark.parametrize("login, email, first_name, last_name, password",
+                         [("user1", "user1@mail.ru", "User1", "Userovich1", "password1"),
+                          ("user2", "user2@mail.ru", "User2", "Userovich2", "password2")])
+def test_add_user_ok(login, email, first_name, last_name, password):
     response = client.post(f"/api/v1/users/",
                            json={
                                "login": login,
                                "email": email,
-                               "full_name": full_name,
+                               "first_name": first_name,
+                               "last_name": last_name,
                                "password": password
                            }
                            )
@@ -45,20 +46,21 @@ def test_add_user_ok(login, email, full_name, password):
     # assert response.json() == []
 
 
-@pytest.mark.parametrize("login, email, full_name, password",
-                         [("user1", "user3@mail.ru", "User3 U", "password3"),
-                          ("user4", "user1@mail.ru", "User4 U", "password4"),
-                          ("user5", "user5@mail", "User5 U", "password5"),
-                          ("", "user6@mail.ru", "User6 U", "password6"),
-                          ("user7", "", "User7 U", "password7"),
-                          ("user8", "user8@mail.ru", "", "password8"),
-                          ("user9", "user9@mail.ru", "User9 U", "")])
-def test_add_user_bad(login, email, full_name, password):
+@pytest.mark.parametrize("login, email, first_name, last_name, password",
+                         [("user1", "user3@mail.ru", "User3", "Userovich3", "password3"),
+                          ("user4", "user1@mail.ru", "User4", "Userovich4", "password4"),
+                          ("user5", "user5@mail", "User5", "Userovich5", "password5"),
+                          ("", "user6@mail.ru", "User6", "Userovich6", "password6"),
+                          ("user7", "", "User7", "Userovich7", "password7"),
+                          ("user8", "user8@mail.ru", "", "Userovich8", "password8"),
+                          ("user9", "user9@mail.ru", "User9", "Userovich9", "")])
+def test_add_user_bad(login, email, first_name, last_name, password):
     response = client.post(f"/api/v1/users/",
                            json={
                                "login": login,
                                "email": email,
-                               "full_name": full_name,
+                               "first_name": first_name,
+                               "last_name": last_name,
                                "password": password
                            }
                            )
@@ -66,19 +68,20 @@ def test_add_user_bad(login, email, full_name, password):
     # assert response.json() == []
 
 
-@pytest.mark.parametrize("login, email, full_name, password, old_password",
-                         [("user1_new", "user1@mail.ru", "User1 U", "password1", "password1"),
-                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1"),
-                          ("user1 new", "user1@mail.ru", "User1 U new", "password1", "password1"),
-                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1"),
-                          ("user1", "user1@mail.ru", "User1 U", "password1_new", "password1"),
-                          ("user1", "user1@mail.ru", "User1 U", "password1", "password1_new")])
-def test_update_user_ok(login, email, full_name, password, old_password):
+@pytest.mark.parametrize("login, email, first_name, last_name, password, old_password",
+                         [("user1_new", "user1@mail.ru", "User1", "Userovich1", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1", "Userovich1", "password1", "password1"),
+                          ("user1 new", "user1@mail.ru", "User1 new", "Userovich1", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1", "Userovich1", "password1", "password1"),
+                          ("user1", "user1@mail.ru", "User1", "Userovich1", "password1_new", "password1"),
+                          ("user1", "user1@mail.ru", "User1", "Userovich1", "password1", "password1_new")])
+def test_update_user_ok(login, email, first_name, last_name, password, old_password):
     response = client.put(f"/api/v1/users/",
                           json={
                               "login": login,
                               "email": email,
-                              "full_name": full_name,
+                              "first_name": first_name,
+                              "last_name": last_name,
                               "password": password,
                               "old_password": old_password
                           }
@@ -86,15 +89,16 @@ def test_update_user_ok(login, email, full_name, password, old_password):
     assert response.status_code == 200
 
 
-@pytest.mark.parametrize("login, email, full_name, password, old_password",
-                         [("user1_new", "userX@mail.ru", "User1 U", "password1", "password1"),
-                          ("user1_new", "user1@mail.ru", "User1 U", "password1", "password1_X")])
-def test_update_user_bad(login, email, full_name, password, old_password):
+@pytest.mark.parametrize("login, email, first_name, last_name, password, old_password",
+                         [("user1_new", "userX@mail.ru", "User1", "Userovich1", "password1", "password1"),
+                          ("user1_new", "user1@mail.ru", "User1", "Userovich1", "password1", "password1_X")])
+def test_update_user_bad(login, email, first_name, last_name, password, old_password):
     response = client.put(f"/api/v1/users/",
                           json={
                               "login": login,
                               "email": email,
-                              "full_name": full_name,
+                              "first_name": first_name,
+                              "last_name": last_name,
                               "password": password,
                               "old_password": old_password
                           }
