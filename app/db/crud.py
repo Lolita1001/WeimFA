@@ -7,7 +7,7 @@ from fastapi import status
 
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from models.models import User, UserCreate, Privileges, UserUpdate, MediaUser, MediaUserCreate
-from .secret import get_password_hash, verify_password
+from .secret import get_password_hash, verify_password, generate_token_activate_user
 
 
 def get_user_by_id(session: Session, user_id: int) -> User:
@@ -41,11 +41,14 @@ def add_user(session: Session, user_create: UserCreate) -> User:
     db_user = User(**user_create.dict())
     db_user.hash_pass = get_password_hash(user_create.password)
     db_user.privileges = Privileges.user
-    db_user.is_active = True
+    db_user.is_active = False
     db_user.updated_at = None
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
+    act_token = generate_token_activate_user(db_user.id)
+    print(act_token)  # TODO токен нужно отправлять на указанную почту.
+    # TODO Уточнить процедуру при истечении срока действия токена. Если токен не получен по почте или утерян.
     return db_user
 
 
@@ -64,7 +67,7 @@ def update_user(session: Session, user_update: UserUpdate) -> User:
         except ValueError as ve:
             if key == "password":
                 db_user.hash_pass = get_password_hash(value)
-    db_user.updated_at = datetime.now().isoformat()
+    db_user.updated_at = datetime.utcnow().isoformat()
     session.add(db_user)
     session.commit()
     session.refresh(db_user)

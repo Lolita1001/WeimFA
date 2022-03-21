@@ -1,9 +1,13 @@
+import datetime
+
 from typing import List
 from fastapi import APIRouter, Depends, status
 
 from models.models import UserResponse, UserCreate, UserUpdate
 from db.database import get_session
 import db.crud as db
+from db.secret import decode_token
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 
 api_router = APIRouter()
 
@@ -11,6 +15,29 @@ api_router = APIRouter()
 @api_router.post("/", response_model=UserResponse)
 def add_user(user_create: UserCreate, session=Depends(get_session)):
     return db.add_user(session, user_create)
+
+
+@api_router.post("/activate/{activate_token}", status_code=status.HTTP_202_ACCEPTED)
+def activate_user(activate_token: str, session=Depends(get_session)):
+    token_data = decode_token(activate_token)
+    if not token_data:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials")
+    expiration_date = token_data.get('expiration_date', None)
+    if datetime.datetime.fromisoformat(expiration_date) <= datetime.datetime.utcnow():
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid authentication credentials")
+    db_user = db.get_user_by_id(session, token_data.get('activate_user_id', None))
+    if not db_user:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="User not found")
+    db_user.is_active = True
+    session.add(db_user)
+    session.commit()
+    session.refresh(db_user)
 
 
 @api_router.get("/{user_id_or_email}", response_model=UserResponse)

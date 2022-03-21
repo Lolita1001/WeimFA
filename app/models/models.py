@@ -30,7 +30,7 @@ class User(BaseUser, table=True):
     hash_pass: str = Field(exclude=True)
     privileges: Privileges
     is_active: bool
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
     updated_at: str | None
     media: Optional[List["MediaUser"]] = Relationship(sa_relationship_kwargs={"cascade": "delete"},
                                                       back_populates="user")
@@ -40,7 +40,7 @@ class UserResponse(BaseUser):
     id: int = Field(primary_key=True)
     privileges: Privileges
     is_active: bool
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
     updated_at: str | None
     media: Optional[List["MediaUser"]]
 
@@ -63,7 +63,7 @@ class MediaUser(MediaUserBase, table=True):  # TODO добавить обяза�
     __tablename__ = "media_user"
     id: int = Field(primary_key=True)
     user_id: Optional[int] = Field(foreign_key='user.id')
-    created_at: str = Field(default_factory=lambda: datetime.now().isoformat())
+    created_at: str = Field(default_factory=lambda: datetime.utcnow().isoformat())
     user: Optional[User] = Relationship(back_populates="media")  # TODO почему не могу заменить на UserResponse?
 
 

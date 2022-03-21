@@ -29,6 +29,13 @@ def generate_token(email: str, expire_time: int = ACCESS_TOKEN_EXPIRE_MINUTES):
     return encode_data(user_dict)
 
 
+def generate_token_activate_user(user_id: int, expire_time: int = ACCESS_TOKEN_EXPIRE_MINUTES):
+    exp = datetime.datetime.utcnow() + datetime.timedelta(minutes=expire_time)
+    user_dict = {"activate_user_id": user_id,
+                 "expiration_date": exp.isoformat()}
+    return encode_data(user_dict)
+
+
 def decode_token(token, secret_key: str = SECRET_KEY, algorithm: str = ALGORITHM):
     try:
         decode_data = jwt.decode(token, secret_key, algorithm)
