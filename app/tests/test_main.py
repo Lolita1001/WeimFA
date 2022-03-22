@@ -45,6 +45,67 @@ def test_add_user_ok(login, email, first_name, last_name, password):
     assert response.status_code == 200
 
 
+@pytest.mark.parametrize("login, password", [('wrong_login', 'wrong_password'),
+                                             ('user1', 'wrong_password'),
+                                             ('wrong_login', 'password1')
+                                             ])
+def test_login_and_authentication_bad(login, password):
+    response = client.post(f"/api/v1/security/token",
+                           headers={
+                               "accept": "application/json",
+                               "Content-Type": "application/x-www-form-urlencoded"
+                           },
+                           data={
+                               "grant_type": "password",
+                               "username": login,
+                               "password": password,
+                               "scope": None,
+                               "client_id": None,
+                               "client_secret": None
+                           }
+                           )
+    assert response.status_code == 401
+    token = response.headers.get('access_token', None)
+    token_type = response.headers.get('token_type', None)
+    response = client.get(f"/api/v1/security/about_me",
+                          headers={
+                              "accept": "application/json",
+                              "Authorization": f"{token_type} {token}"
+                          }
+                          )
+    assert response.status_code == 401
+
+
+@pytest.mark.parametrize("login, password", [('user1@mail.ru', 'password1'),
+                                             ('user2@mail.ru', 'password2')
+                                             ])
+def test_login_and_authentication_ok(login, password):
+    response = client.post(f"/api/v1/security/token",
+                           headers={
+                               "accept": "application/json",
+                               "Content-Type": "application/x-www-form-urlencoded"
+                           },
+                           data={
+                               "grant_type": "password",
+                               "username": login,
+                               "password": password,
+                               "scope": None,
+                               "client_id": None,
+                               "client_secret": None
+                           }
+                           )
+    assert response.status_code == 200
+    token = response.json().get('access_token', None)
+    token_type = response.json().get('token_type', None)
+    response = client.get(f"/api/v1/security/about_me",
+                          headers={
+                              "accept": "application/json",
+                              "Authorization": f"{token_type} {token}"
+                          }
+                          )
+    assert response.status_code == 200  # TODO не выполнится, нет этапа активации аккаунта
+
+
 @pytest.mark.parametrize("login, email, first_name, last_name, password",
                          [("user1", "user3@mail.ru", "User3", "Userovich3", "password3"),
                           ("user4", "user1@mail.ru", "User4", "Userovich4", "password4"),

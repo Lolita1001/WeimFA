@@ -7,7 +7,7 @@ from fastapi import status
 
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from models.models import User, UserCreate, Privileges, UserUpdate, MediaUser, MediaUserCreate
-from .secret import get_password_hash, verify_password, generate_token_activate_user
+from .secret import get_password_hash, verify_password, generate_token
 
 
 def get_user_by_id(session: Session, user_id: int) -> User:
@@ -46,7 +46,7 @@ def add_user(session: Session, user_create: UserCreate) -> User:
     session.add(db_user)
     session.commit()
     session.refresh(db_user)
-    act_token = generate_token_activate_user(db_user.id)
+    act_token = generate_token(db_user.id)
     print(act_token)  # TODO токен нужно отправлять на указанную почту.
     # TODO Уточнить процедуру при истечении срока действия токена. Если токен не получен по почте или утерян.
     return db_user

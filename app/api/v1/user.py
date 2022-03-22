@@ -1,7 +1,8 @@
 import datetime
 
-from typing import List
-from fastapi import APIRouter, Depends, status
+from typing import List, Callable
+from fastapi import APIRouter, Depends, status, Response, Request
+from fastapi.routing import APIRoute
 
 from models.models import UserResponse, UserCreate, UserUpdate
 from db.database import get_session
@@ -9,7 +10,18 @@ import db.crud as db
 from db.secret import decode_token
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 
-api_router = APIRouter()
+
+class LoggingRoute(APIRoute):  # TODO сделать логер
+    def get_route_handler(self) -> Callable:
+        original_route_handler = super().get_route_handler()
+
+        async def custom_route_handler(request: Request) -> Response:
+            response: Response = await original_route_handler(request)
+            return response
+        return custom_route_handler
+
+
+api_router = APIRouter(route_class=LoggingRoute)
 
 
 @api_router.post("/", response_model=UserResponse)
@@ -29,7 +41,7 @@ def activate_user(activate_token: str, session=Depends(get_session)):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials")
-    db_user = db.get_user_by_id(session, token_data.get('activate_user_id', None))
+    db_user = db.get_user_by_id(session, token_data.get('data', None))  # user_id from 'data'
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,

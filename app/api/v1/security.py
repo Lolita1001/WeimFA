@@ -41,11 +41,15 @@ def authentication(token: str = Depends(oauth2_scheme), session=Depends(get_sess
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid authentication credentials",
             headers={"WWW-Authenticate": "Bearer"})
-    db_user = db.get_user_by_email(session, token_data.get('email', None))
+    db_user = db.get_user_by_email(session, token_data.get('data', None))  # email from 'data'
     if not db_user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="User not found")
+    if not db_user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_406_NOT_ACCEPTABLE,
+            detail="Account is not active. Email is not confirmed")
     return db_user
 
 
