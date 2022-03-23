@@ -25,8 +25,11 @@ api_router = APIRouter(route_class=LoggingRoute)
 
 
 @api_router.post("/", response_model=UserResponse)
-def add_user(user_create: UserCreate, session=Depends(get_session)):
-    return db.add_user(session, user_create)
+def add_user(user_create: UserCreate, res: Response, session=Depends(get_session)):
+    db_user, act_token = db.add_user(session, user_create)
+    if user_create.email.split('@')[1] == 'example.com':  # TODO удалить, другого способа не придумал. Для тестов
+        res.headers['act_token'] = act_token
+    return db_user
 
 
 @api_router.post("/activate/{activate_token}", status_code=status.HTTP_202_ACCEPTED)
