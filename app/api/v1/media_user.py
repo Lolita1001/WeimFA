@@ -3,30 +3,28 @@ from fastapi import APIRouter, Depends, status, File, UploadFile
 
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from models.models import MediaUserResponse, MediaUserCreate
-from db.database import get_session
-from db.utils.utils import save_file
-import db.crud as db
+from repositories.media_user import MediaUserRepository
 
 api_router = APIRouter()
 
 
 @api_router.get("/{user_id}", response_model=List[MediaUserResponse])
-def get_media_user(user_id: int, session=Depends(get_session)):
-    return db.get_medias_user_by_user_id(session, user_id)
+def get_media_user(user_id: int, repository: MediaUserRepository = Depends(MediaUserRepository)):
+    return repository.get_medias_user_by_user_id(user_id)
 
 
 @api_router.delete("/{media_id}", status_code=status.HTTP_202_ACCEPTED)
-def delete_media_user(media_id: int, session=Depends(get_session)):
-    return db.delete_media_user(session, media_id)
+def delete_media_user(media_id: int, repository: MediaUserRepository = Depends(MediaUserRepository)):
+    return repository.delete_media_user(media_id)
 
 
 @api_router.post("/{user_id}", response_model=MediaUserResponse)
-def create_file(user_id: int, in_file: UploadFile = File(...), session=Depends(get_session)):
-    user_db = db.get_user_by_id(session, user_id)
+def create_file(user_id: int, in_file: UploadFile = File(...), repository: MediaUserRepository = Depends(MediaUserRepository)):
+    user_db = repository.get_user_by_id(user_id)
     if not user_db:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Incorrect user_id")
-    file_path = save_file(in_file, "static/media_user/")
+    file_path = repository.save_file(in_file, "static/media_user/")
     media_user_create = MediaUserCreate(user_id=user_id, media_path=file_path)
-    db_media_user = db.add_media_user(session, media_user_create)
+    db_media_user = repository.add_media_user(media_user_create)
     return db_media_user

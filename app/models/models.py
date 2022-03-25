@@ -3,7 +3,6 @@ import enum
 from sqlmodel import SQLModel, Field, Relationship
 from sqlalchemy import Column, VARCHAR
 from pydantic import EmailStr
-from uuid import UUID, uuid4  # TODO уточнить в каких случаях используют uuid
 from datetime import datetime
 
 
