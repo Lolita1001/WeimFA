@@ -3,7 +3,8 @@ from fastapi.responses import JSONResponse
 from sqlmodel import select
 
 from db.database import get_session, Session
-from models.models import MediaUser, MediaUserCreate
+from models.user.schemes import MediaUser
+from models.user.validators import MediaUserCreate
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from repositories.user import UserRepository
 

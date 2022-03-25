@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi import APIRouter, Depends, status
 
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
-from models.models import UserResponse
+from models.user.serializers import UserResponse
 from repositories.user import UserRepository
 
 api_router = APIRouter()

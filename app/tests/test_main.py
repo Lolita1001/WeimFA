@@ -8,8 +8,6 @@ from tests.test_db import override_get_session
 app.dependency_overrides[get_session] = override_get_session
 client = TestClient(app, root_path='/app')
 
-GLOBAL_STORAGE_FOR_TEST = {}
-
 
 @pytest.mark.parametrize("user_id", [-1, 0, 1, 'user', ' ', '123'])
 def test_get_user_by_id_or_email(user_id):
@@ -26,7 +24,7 @@ def test_get_users_1():
 
 @pytest.mark.parametrize("user_id", [-1, 0, 1])
 def test_get_media_user_1(user_id):
-    response = client.get(f"/api/v1/media_user/{user_id}")
+    response = client.get(f"/api/v1/users/media/{user_id}")
     assert response.status_code == 200
     assert response.json() == []
 
@@ -46,7 +44,7 @@ def test_get_dogs_1():
 
 @pytest.mark.parametrize("dog_id", [-1, 0, 1])
 def test_get_media_dog_1(dog_id):
-    response = client.get(f"/api/v1/media_dog/{dog_id}")
+    response = client.get(f"/api/v1/dogs/media/{dog_id}")
     assert response.status_code == 200
     assert response.json() == []
 
@@ -200,7 +198,7 @@ def test_update_user_bad(login, email, first_name, last_name, password, old_pass
                           (2, "tests/test_static/img_2.png")])
 def test_create_file_ok(user_id, img_path):
     files = {'in_file': open(img_path, 'rb')}
-    response = client.post(f"/api/v1/media_user/{user_id}", files=files)
+    response = client.post(f"/api/v1/users/media/{user_id}", files=files)
     assert response.status_code == 200
 
 
@@ -210,20 +208,20 @@ def test_create_file_ok(user_id, img_path):
                           (1, "tests/test_static/img_4.ico")])
 def test_create_file_bad(user_id, img_path):
     files = {'in_file': open(img_path, 'rb')}
-    response = client.post(f"/api/v1/media_user/{user_id}", files=files)
+    response = client.post(f"/api/v1/users/media/{user_id}", files=files)
     assert response.status_code in [401, 409, 411]
     assert response.headers.get('custom_exc', None) == "True"
 
 
 @pytest.mark.parametrize("media_id", [2, 4, 6])
 def test_delete_media_user_ok(media_id):
-    response = client.delete(f"/api/v1/media_user/{media_id}")
+    response = client.delete(f"/api/v1/users/media/{media_id}")
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize("media_id", [10, 11])
 def test_delete_media_user_bag(media_id):
-    response = client.delete(f"/api/v1/media_user/{media_id}")
+    response = client.delete(f"/api/v1/users/media/{media_id}")
     assert response.status_code == 401
     assert response.headers.get('custom_exc', None) == "True"
 
@@ -327,7 +325,7 @@ def test_add_dog_bad(dog_name_eng, dog_name_rus, gender, date_of_birth, date_of_
                           (2, "tests/test_static/img_2.png")])
 def test_create_file_dog_ok(dog_id, img_path):
     files = {'in_file': open(img_path, 'rb')}
-    response = client.post(f"/api/v1/media_dog/{dog_id}", files=files)
+    response = client.post(f"/api/v1/dogs/media/{dog_id}", files=files)
     assert response.status_code == 200
 
 
@@ -337,20 +335,20 @@ def test_create_file_dog_ok(dog_id, img_path):
                           (1, "tests/test_static/img_4.ico")])
 def test_create_file_dog_bad(dog_id, img_path):
     files = {'in_file': open(img_path, 'rb')}
-    response = client.post(f"/api/v1/media_dog/{dog_id}", files=files)
+    response = client.post(f"/api/v1/dogs/media/{dog_id}", files=files)
     assert response.status_code in [401, 409, 411]
     assert response.headers.get('custom_exc', None) == "True"
 
 
 @pytest.mark.parametrize("dog_id", [2, 4, 6])
 def test_delete_media_dog_ok(dog_id):
-    response = client.delete(f"/api/v1/media_dog/{dog_id}")
+    response = client.delete(f"/api/v1/dogs/media/{dog_id}")
     assert response.status_code == 200
 
 
 @pytest.mark.parametrize("dog_id", [10, 11])
 def test_delete_media_dog_bad(dog_id):
-    response = client.delete(f"/api/v1/media_dog/{dog_id}")
+    response = client.delete(f"/api/v1/dogs/media/{dog_id}")
     assert response.status_code == 401
     assert response.headers.get('custom_exc', None) == "True"
 
@@ -369,6 +367,6 @@ def test_get_users_2():
 
 @pytest.mark.parametrize("user_id", [1, 2])
 def test_get_media_user_2(user_id):
-    response = client.get(f"/api/v1/media_user/{user_id}")
+    response = client.get(f"/api/v1/users/media/{user_id}")
     assert response.status_code == 200
     assert response.json() == []

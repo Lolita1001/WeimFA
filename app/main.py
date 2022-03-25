@@ -1,6 +1,4 @@
-from typing import Callable
-
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -10,10 +8,8 @@ import uvicorn
 # import logging
 
 from api.v1.user import api_router as user_route
-from api.v1.media_user import api_router as media_user_route
 from api.v1.security import api_router as security_route
 from api.v1.dog import api_router as dog_route
-from api.v1.media_dog import api_router as media_dog_route
 from db.database import create_db_and_tables
 
 
@@ -28,10 +24,8 @@ app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 app.include_router(user_route, prefix='/api/v1/users', tags=['user'])
-app.include_router(media_user_route, prefix='/api/v1/media_user', tags=['media_user'])
 app.include_router(security_route, prefix='/api/v1/security', tags=['security'])
 app.include_router(dog_route, prefix='/api/v1/dogs', tags=['dog'])
-app.include_router(media_dog_route, prefix='/api/v1/media_dog', tags=['media_dog'])
 
 
 # Enable CORS

@@ -1,10 +1,15 @@
 from typing import List, Callable
 
-from fastapi import APIRouter, Depends, status, Response, Request
+from fastapi import APIRouter, Depends, status, Response, Request, File, UploadFile
 from fastapi.routing import APIRoute
 
-from models.models import UserResponse, UserCreate, UserUpdate
+from models.user.validators import UserUpdate, UserCreate
+from models.user.serializers import UserResponse
+from models.user.validators import MediaUserCreate
+from models.user.serializers import MediaUserResponse
+from repositories.media_user import MediaUserRepository
 from repositories.user import UserRepository
+from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 
 
 class LoggingRoute(APIRoute):  # TODO сделать логер
@@ -53,3 +58,25 @@ def update_user(user_update: UserUpdate, repository: UserRepository = Depends(Us
 @api_router.delete("/{user_id}", status_code=status.HTTP_202_ACCEPTED)
 def delete_user_by_id(user_id: int, repository: UserRepository = Depends(UserRepository)):
     return repository.delete_user_by_id(user_id)
+
+
+@api_router.get("/media/{user_id}", response_model=List[MediaUserResponse])
+def get_media_user(user_id: int, repository: MediaUserRepository = Depends(MediaUserRepository)):
+    return repository.get_medias_user_by_user_id(user_id)
+
+
+@api_router.delete("/media/{media_id}", status_code=status.HTTP_202_ACCEPTED)
+def delete_media_user(media_id: int, repository: MediaUserRepository = Depends(MediaUserRepository)):
+    return repository.delete_media_user(media_id)
+
+
+@api_router.post("/media/{user_id}", response_model=MediaUserResponse)
+def create_file(user_id: int, in_file: UploadFile = File(...), repository: MediaUserRepository = Depends(MediaUserRepository)):
+    user_db = repository.get_user_by_id(user_id)
+    if not user_db:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Incorrect user_id")
+    file_path = repository.save_file(in_file, "static/media_user/")
+    media_user_create = MediaUserCreate(user_id=user_id, media_path=file_path)
+    db_media_user = repository.add_media_user(media_user_create)
+    return db_media_user

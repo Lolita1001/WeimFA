@@ -3,7 +3,8 @@ from fastapi.responses import JSONResponse
 from sqlmodel import select
 
 from db.database import get_session, Session
-from models.models import MediaDog, MediaDogCreate
+from models.dog.schemes import MediaDog
+from models.dog.validators import MediaDogCreate
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from repositories.dog import DogRepository
 

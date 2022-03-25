@@ -7,7 +7,8 @@ from sqlmodel import select
 from db.database import get_session, Session
 from repositories.base import BaseRepository
 from repositories.security import SecurityRepository
-from models.models import User, UserCreate, UserUpdate
+from models.user.schemes import User
+from models.user.validators import UserCreate, UserUpdate
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 
 

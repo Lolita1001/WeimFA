@@ -3,8 +3,8 @@ from fastapi.responses import JSONResponse
 from sqlmodel import select
 
 from db.database import get_session, Session
-from models.models import Dog, DogCreate
-from models.models import Breed, BreedCreate
+from models.dog.schemes import Dog, Breed
+from models.dog.validators import DogCreate, BreedCreate
 from db.utils.exceptions import HTTPExceptionCustom as HTTPException
 from repositories.user import UserRepository
 
@@ -69,7 +69,7 @@ class DogRepository(UserRepository):
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                                 detail="Incorrect dog_id")
         path_files = [media.media_path for media in db_dog.media]
-        self.remove_files(path_files)
+        self.remove_files(path_files)  # TODO при удалении пользователя, удаляются все его собаки, но не удаляются файлы
         self.session.delete(db_dog)
         self.session.commit()
         return JSONResponse({'ok': True})
